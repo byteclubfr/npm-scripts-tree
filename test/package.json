@@ -1,0 +1,8 @@
+{
+	"scripts": {
+		"a": "npm run b && npm run c",
+		"b": "foo",
+		"c": "npm run d",
+		"d": "bar"
+	}
+}

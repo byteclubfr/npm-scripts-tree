@@ -1,17 +1,22 @@
 {
   "name": "npm-scripts-tree",
   "version": "1.0.0",
-  "description": "Displays your npm scripts hierarchy",
+  "description": "Displays npm scripts hierarchies",
   "main": "index.js",
   "bin": {
     "npm-scripts-tree": "bin/npm-scripts-tree"
   },
-  "keywords": ["npm-scripts"],
+  "keywords": [
+    "npm-scripts"
+  ],
   "author": "Delapouite <delapouite@gmail.com> (http://delapouite.com)",
   "license": "MIT",
   "homepage": "https://github.com/lmtm/npm-scripts-tree",
   "repository": {
     "type": "git",
     "url": "https://github.com/lmtm/npm-scripts-tree.git"
+  },
+  "dependencies": {
+    "archy": "^1.0.0"
   }
 }
