@@ -37,11 +37,17 @@ function getLabel (script) {
 }
 
 function isPreScript (name, scripts) {
-  return Boolean(name.match(/^pre/) && scripts[name.slice(3)]);
+  return isLifeCycleScript("pre", name, scripts);
 }
 
 function isPostScript (name, scripts) {
-  return Boolean(name.match(/^post/) && scripts[name.slice(4)]);
+  return isLifeCycleScript("post", name, scripts);
+}
+
+function isLifeCycleScript (prefix, name, scripts) {
+  var re = new RegExp("^" + prefix);
+  var root = name.slice(prefix.length);
+  return Boolean(name.match(re) && (scripts[root] || ~BUILTINS.indexOf(root)));
 }
 
 function getPreScript (name, scripts) {
