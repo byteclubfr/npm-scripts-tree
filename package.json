@@ -17,6 +17,7 @@
     "url": "https://github.com/lmtm/npm-scripts-tree.git"
   },
   "dependencies": {
-    "archy": "^1.0.0"
+    "archy": "^1.0.0",
+    "chalk": "^1.1.1"
   }
 }

@@ -1,6 +1,7 @@
 "use strict";
 
 var path = require("path");
+var chalk = require("chalk");
 // convention used : label and nodes
 var archy = require("archy");
 
@@ -16,33 +17,43 @@ var BUILTINS = [
 ];
 
 function archify (scripts) {
-  var labels = Object.keys(scripts);
+  var names = Object.keys(scripts);
   return {
-    label: labels.length + " scripts",
-    nodes: labels.map(function (label) {
-      return scripts[label];
+    label: names.length + " scripts",
+    nodes: names.map(function (name) {
+      return scripts[name];
     })
   }
 }
 
-function isPreScript (label, scripts) {
-  return Boolean(label.match(/^pre/) && scripts[label.slice(3)]);
+function getLabel (script) {
+  var name;
+  if (script.isPre || script.isPost) {
+    name = chalk.cyan(script.name);
+  } else {
+    name = chalk.bold(script.name);
+  }
+  return name + chalk.dim(" — " + script.cmd);
 }
 
-function isPostScript (label, scripts) {
-  return Boolean(label.match(/^post/) && scripts[label.slice(4)]);
+function isPreScript (name, scripts) {
+  return Boolean(name.match(/^pre/) && scripts[name.slice(3)]);
 }
 
-function getPreScript (label, scripts) {
-  return scripts["pre" + label];
+function isPostScript (name, scripts) {
+  return Boolean(name.match(/^post/) && scripts[name.slice(4)]);
 }
 
-function getPostScript (label, scripts) {
-  return scripts["post" + label];
+function getPreScript (name, scripts) {
+  return scripts["pre" + name];
 }
 
-function getNodesLabels (label, scripts) {
-  var cmd = scripts[label];
+function getPostScript (name, scripts) {
+  return scripts["post" + name];
+}
+
+function getNodesNames (name, scripts) {
+  var cmd = scripts[name];
   var m = cmd.match(/(npm run (\S*))+/gi);
   if (!m) return null;
 
@@ -63,32 +74,34 @@ function getScripts () {
 }
 
 function getDetailedScripts (scripts) {
-  return Object.keys(scripts).reduce(function (all, label) {
+  return Object.keys(scripts).reduce(function (all, name) {
     var s = {
-      label: label,
-      cmd: scripts[label],
-      isPre: isPreScript(label, scripts),
-      isPost: isPostScript(label, scripts),
-      pre: getPreScript(label, scripts),
-      post: getPostScript(label, scripts),
-      nodesLabels: getNodesLabels(label, scripts)
+      name: name,
+      cmd: scripts[name],
+      isPre: isPreScript(name, scripts),
+      isPost: isPostScript(name, scripts),
+      pre: getPreScript(name, scripts),
+      post: getPostScript(name, scripts),
+      nodesNames: getNodesNames(name, scripts)
     };
 
-    all[label] = s;
+    s.label = getLabel(s);
+
+    all[name] = s;
     return all;
   }, {});
 }
 
 function attachNodes (scripts) {
-  return Object.keys(scripts).reduce(function (all, label) {
-    var s = scripts[label];
-    if (s.nodesLabels) {
-      s.nodes = s.nodesLabels.map(function (c) {
+  return Object.keys(scripts).reduce(function (all, name) {
+    var s = scripts[name];
+    if (s.nodesNames) {
+      s.nodes = s.nodesNames.map(function (c) {
         return scripts[c];
       });
     }
 
-    all[label] = s;
+    all[name] = s;
     return all;
   }, {});
 }
