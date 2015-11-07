@@ -101,11 +101,15 @@ function getDetailedScripts (scripts) {
 function attachNodes (scripts) {
   return Object.keys(scripts).reduce(function (all, name) {
     var s = scripts[name];
+    s.nodes = [];
     if (s.nodesNames) {
       s.nodes = s.nodesNames.map(function (c) {
         return scripts[c];
       });
     }
+
+    if (s.pre) s.nodes.unshift(scripts["pre" + name]);
+    if (s.post) s.nodes.push(scripts["post" + name]);
 
     all[name] = s;
     return all;
