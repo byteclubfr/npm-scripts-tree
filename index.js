@@ -1,6 +1,5 @@
 "use strict";
 
-var path = require("path");
 var chalk = require("chalk");
 // convention used : label and nodes
 var archy = require("archy");
@@ -68,17 +67,6 @@ function getNodesNames (name, scripts) {
   });
 }
 
-function getScripts () {
-  var pkg;
-
-  try {
-    pkg = require(path.resolve("package.json"));
-    return pkg.scripts;
-  } catch (e) {
-    return null;
-  }
-}
-
 function getDetailedScripts (scripts) {
   return Object.keys(scripts).reduce(function (all, name) {
     var s = {
@@ -116,14 +104,12 @@ function attachNodes (scripts) {
   }, {});
 }
 
-function main () {
-  var scripts = getScripts();
-
+function main (scripts) {
   if (!scripts) throw new Error("No package.json or no scripts key in this dir");
 
   var detailedScripts = getDetailedScripts(scripts);
   detailedScripts = attachNodes(detailedScripts);
-  console.log(archy(archify(detailedScripts)));
+  return archy(archify(detailedScripts));
 }
 
 module.exports = {

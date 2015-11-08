@@ -1,4 +1,19 @@
 #!/usr/bin/env node
 
+var path = require("path");
 var cli = require("../");
-cli.main();
+
+function getScripts () {
+  var pkg;
+
+  try {
+    pkg = require(path.resolve("package.json"));
+    return pkg.scripts;
+  } catch (e) {
+    return null;
+  }
+}
+
+var scripts = getScripts();
+
+console.log(cli.main(scripts));
