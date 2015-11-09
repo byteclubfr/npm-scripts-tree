@@ -15,8 +15,11 @@ var BUILTINS = [
   "version"
 ];
 
-function archify (scripts) {
+function archify (scripts, alpha) {
   var names = Object.keys(scripts);
+  if (alpha) {
+    names = names.sort();
+  }
   return {
     label: names.length + " scripts",
     nodes: names.map(function (name) {
@@ -104,12 +107,15 @@ function attachNodes (scripts) {
   }, {});
 }
 
-function main (scripts) {
+function main (scripts, options) {
   if (!scripts) throw new Error("No package.json or no scripts key in this dir");
 
   var detailedScripts = getDetailedScripts(scripts);
   detailedScripts = attachNodes(detailedScripts);
-  return archy(archify(detailedScripts));
+
+  // sort?
+  var alpha = options.a || options.alpha;
+  return archy(archify(detailedScripts, alpha));
 }
 
 module.exports = {

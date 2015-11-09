@@ -3,6 +3,8 @@
 var path = require("path");
 var cli = require("../");
 
+var argv = require("minimist")(process.argv.slice(2));
+
 function getScripts () {
   var pkg;
 
@@ -16,4 +18,4 @@ function getScripts () {
 
 var scripts = getScripts();
 
-console.log(cli.main(scripts));
+console.log(cli.main(scripts, argv));
