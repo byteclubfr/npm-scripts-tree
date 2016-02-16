@@ -1,6 +1,9 @@
+[![npm version](https://badge.fury.io/js/npm-scripts-tree.svg)](http://badge.fury.io/js/npm-scripts-tree)
+[![Dependency Status](https://david-dm.org/byteclubfr/npm-scripts-tree.png)](https://david-dm.org/byteclubfr/npm-scripts-tree)
+
 # npm-scripts-tree
 
-`npm run` without argument displays 2 flat lists :
+`npm run` without argument displays 2 flat lists:
 
   1. *Official* life-cycle scripts : `start`, `test`, `postinstall`…
   2. Your custom made scripts : their name followed by their command.
