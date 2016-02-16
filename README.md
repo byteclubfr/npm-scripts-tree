@@ -18,13 +18,13 @@ For instance:
 
 ```js
 "scripts": {
-	"build": "npm run build:css && npm run build:js",
-	"build:css": "do JS stuff",
-	"build:js": "do CSS stuff"
+  "build": "npm run build:css && npm run build:js",
+  "build:css": "do JS stuff",
+  "build:js": "do CSS stuff"
 }
 ```
 
-`npm-scripts-tree` detects the relationship between these scripts and displays them in a tree fashion, recursively if needed.
+`npm-scripts-tree` detects the relationship between these scripts and displays them in a [tree fashion](https://github.com/substack/node-archy), recursively if needed.
 
 ### pre / post scripts
 
@@ -37,6 +37,8 @@ By starting your scripts name by *pre* or *post* you declare your own life-cycle
 ## Usage
 
 Run `npm-scripts-tree` in the directory containing the `package.json` you want to inspect.
+
+**Tip**: you may want to create a shell alias like `alias nst='npm-scripts-tree'`.
 
 ## License
 
