@@ -21,21 +21,17 @@ function archify (scripts, alpha) {
     names = names.sort();
   }
   return {
-    label: names.length + " scripts",
-    nodes: names.map(function (name) {
-      return scripts[name];
-    })
+    label: `${names.length} scripts`,
+    nodes: names.map(n => scripts[n])
   }
 }
 
 function getLabel (script) {
-  var name;
-  if (script.isPre || script.isPost) {
-    name = chalk.cyan(script.name);
-  } else {
-    name = chalk.bold(script.name);
-  }
-  return name + chalk.dim(" — " + script.cmd);
+  var name = script.isPre || script.isPost
+    ? chalk.cyan(script.name)
+    : chalk.bold(script.name)
+
+  return name + chalk.dim(` —  ${script.cmd}`);
 }
 
 function isPreScript (name, scripts) {
@@ -62,16 +58,14 @@ function getPostScript (name, scripts) {
 
 function getNodesNames (name, scripts) {
   var cmd = scripts[name];
-  var m = cmd.match(/(npm run (\S*))+/gi);
+  var m = cmd.match(/(npm run (\w*))+/gi);
   if (!m) return null;
 
-  return m.map(function (c) {
-    return c.slice(8);
-  });
+  return m.map(c => c.slice(8));
 }
 
 function getDetailedScripts (scripts) {
-  return Object.keys(scripts).reduce(function (all, name) {
+  return Object.keys(scripts).reduce((all, name) => {
     var s = {
       name: name,
       cmd: scripts[name],
@@ -90,14 +84,11 @@ function getDetailedScripts (scripts) {
 }
 
 function attachNodes (scripts) {
-  return Object.keys(scripts).reduce(function (all, name) {
+  return Object.keys(scripts).reduce((all, name) => {
     var s = scripts[name];
-    s.nodes = [];
-    if (s.nodesNames) {
-      s.nodes = s.nodesNames.map(function (c) {
-        return scripts[c];
-      });
-    }
+    s.nodes = s.nodesNames
+      ? s.nodesNames.map(n => scripts[n])
+      : []
 
     if (s.pre) s.nodes.unshift(scripts["pre" + name]);
     if (s.post) s.nodes.push(scripts["post" + name]);
@@ -118,6 +109,4 @@ function main (scripts, options) {
   return archy(archify(detailedScripts, alpha));
 }
 
-module.exports = {
-  main: main
-};
+module.exports = { main }
