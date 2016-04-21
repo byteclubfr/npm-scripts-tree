@@ -40,6 +40,10 @@ Run `npm-scripts-tree` in the directory containing the `package.json` you want t
 
 **Tip**: you may want to create a shell alias like `alias nst='npm-scripts-tree'`.
 
+### Options
+
+`-a`, `--alpha` List scripts alphabetically
+
 ## License
 
 MIT
