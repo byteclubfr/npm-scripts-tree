@@ -72,17 +72,32 @@ function getPostScript (name, scripts) {
 function getNodesNames (name, scripts) {
   var cmd = scripts[name];
 
-  var subScripts = [].concat(
+  var nodesNames = [].concat(
     getRunScripts(cmd),
     getRunAllScripts(cmd)
   ).filter(x => x); // not null
 
-  return unique(subScripts);
+  return getExistingNodeNames(unique(nodesNames), scripts);
+}
+
+function getExistingNodeNames (nodesNames, scripts) {
+  return expandWildcard(nodesNames, scripts).filter(n => scripts[n]);
+}
+
+function expandWildcard (nodesNames, scripts) {
+  return flatten(nodesNames.map(n => {
+    var sp = n.split(':');
+    var star = sp.pop();
+    if (star === '*' && sp.length === 1) {
+      let name = sp[0];
+      return Object.keys(scripts).filter(k =>  k.startsWith(`${name}:`));
+    }
+    return n;
+  }));
 }
 
 // handled natively
 function getRunScripts (cmd) {
-  var re = /(?:npm run\s+(\w+))+/gi;
   var re = new RegExp('(?:npm run' + RE_NAME + ')+', 'gi');
   var cmds = [];
   var m;
@@ -131,7 +146,7 @@ function getDetailedScripts (scripts) {
 function attachNodes (scripts) {
   return Object.keys(scripts).reduce((all, name) => {
     var s = scripts[name];
-    s.nodes = s.nodesNames.map(n => scripts[n]).filter(x => x);
+    s.nodes = s.nodesNames.map(n => scripts[n]);
 
     if (s.pre) s.nodes.unshift(scripts["pre" + name]);
     if (s.post) s.nodes.push(scripts["post" + name]);

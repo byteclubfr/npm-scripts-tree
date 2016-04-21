@@ -1,10 +1,14 @@
 {
 	"scripts": {
 		"a": "npm run b && npm run c",
+		"preb": "prefoo",
 		"b": "foo",
 		"c": "npm run d",
 		"d": "bar",
 		"e": "npm-run-all b d",
-		"f": "npm-run-all --serial b d"
+		"f": "npm-run-all --serial b d",
+		"g": "npm-run-all --serial g:*",
+		"g:a": "qux",
+		"g:b": "yolo"
 	}
 }
