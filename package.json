@@ -14,10 +14,10 @@
   ],
   "author": "Delapouite <delapouite@gmail.com> (http://delapouite.com)",
   "license": "MIT",
-  "homepage": "https://github.com/lmtm/npm-scripts-tree",
+  "homepage": "https://github.com/byteclubfr/npm-scripts-tree",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lmtm/npm-scripts-tree.git"
+    "url": "https://github.com/byteclubfr/npm-scripts-tree.git"
   },
   "dependencies": {
     "archy": "^1.0.0",
