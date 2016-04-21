@@ -3,6 +3,8 @@
 		"a": "npm run b && npm run c",
 		"b": "foo",
 		"c": "npm run d",
-		"d": "bar"
+		"d": "bar",
+		"e": "npm-run-all b d",
+		"f": "npm-run-all --serial b d"
 	}
 }
