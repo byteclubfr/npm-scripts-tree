@@ -15,6 +15,19 @@ var BUILTINS = [
   "version"
 ];
 
+// -s, --serial…
+var RE_FLAGS = '(?:\\s+\-+\\w+)*';
+// build, watch, build_client, build-client, build:*
+var RE_NAME = '\\s+([a-z0-9_\\-]+)';
+var RE_NAMES = '((?:\\s+[a-z0-9_:\\-\\*]+)+)';
+
+// utils
+
+var unique = array => [...new Set(array)];
+
+var flatten = arrays => [].concat.apply([], arrays)
+
+
 function archify (scripts, alpha) {
   var names = Object.keys(scripts);
   if (alpha) {
@@ -31,7 +44,7 @@ function getLabel (script) {
     ? chalk.cyan(script.name)
     : chalk.bold(script.name)
 
-  return name + chalk.dim(` —  ${script.cmd}`);
+  return name + chalk.dim(` — ${script.cmd}`);
 }
 
 function isPreScript (name, scripts) {
@@ -58,10 +71,41 @@ function getPostScript (name, scripts) {
 
 function getNodesNames (name, scripts) {
   var cmd = scripts[name];
-  var m = cmd.match(/(npm run (\w*))+/gi);
-  if (!m) return null;
 
-  return m.map(c => c.slice(8));
+  var subScripts = [].concat(
+    getRunScripts(cmd),
+    getRunAllScripts(cmd)
+  ).filter(x => x); // not null
+
+  return unique(subScripts);
+}
+
+// handled natively
+function getRunScripts (cmd) {
+  var re = /(?:npm run\s+(\w+))+/gi;
+  var re = new RegExp('(?:npm run' + RE_NAME + ')+', 'gi');
+  var cmds = [];
+  var m;
+  // for each npm run group
+  while ((m = re.exec(cmd)) !== null) {
+    cmds.push(m[1]);
+  }
+
+  return unique(cmds);
+}
+
+// handled by npm-run-all module
+function getRunAllScripts (cmd) {
+  var re = RegExp('(?:npm-run-all' + RE_FLAGS + RE_NAMES + ')+', 'gi');
+  var cmds = [];
+  var m;
+  // for each npm-run-all group
+  while ((m = re.exec(cmd)) !== null) {
+    // clean spaces
+    cmds.push(m[1].trim().split(' ').filter(x => x));
+  }
+
+  return unique(flatten(cmds));
 }
 
 function getDetailedScripts (scripts) {
@@ -83,12 +127,11 @@ function getDetailedScripts (scripts) {
   }, {});
 }
 
+// sub scripts
 function attachNodes (scripts) {
   return Object.keys(scripts).reduce((all, name) => {
     var s = scripts[name];
-    s.nodes = s.nodesNames
-      ? s.nodesNames.map(n => scripts[n])
-      : []
+    s.nodes = s.nodesNames.map(n => scripts[n]).filter(x => x);
 
     if (s.pre) s.nodes.unshift(scripts["pre" + name]);
     if (s.post) s.nodes.push(scripts["post" + name]);
@@ -109,4 +152,10 @@ function main (scripts, options) {
   return archy(archify(detailedScripts, alpha));
 }
 
-module.exports = { main }
+module.exports = {
+  main,
+  // test
+  getRunScripts,
+  getRunAllScripts,
+  getNodesNames
+}
