@@ -24,11 +24,15 @@ For instance:
 }
 ```
 
-`npm-scripts-tree` detects the relationship between these scripts and displays them in a [tree fashion](https://github.com/substack/node-archy), recursively if needed.
+`npm-scripts-tree` detects the relationship between these scripts and displays them in a [tree fashion](https://github.com/substack/node-archy), recursively if needed. See detailed example below.
 
 ### pre / post scripts
 
 By starting your scripts name by *pre* or *post* you declare your own life-cycle hooks. This kind of dependency between scripts is also taken into account in the final output.
+
+### serial / parallel
+
+[npm-run-all](https://www.npmjs.com/package/npm-run-all) dependencies are also supported!
 
 ## Install
 
@@ -43,6 +47,57 @@ Run `npm-scripts-tree` in the directory containing the `package.json` you want t
 ### Options
 
 `-a`, `--alpha` List scripts alphabetically
+
+## Example
+
+Fake `package.json` located in the `test` directory.
+
+```json
+{
+	"scripts": {
+		"a": "npm run b && npm run c",
+		"preb": "prefoo",
+		"b": "foo",
+		"c": "npm run d",
+		"d": "bar",
+		"e": "npm-run-all b d",
+		"f": "npm-run-all --serial b d",
+		"g": "npm-run-all --serial g:*",
+		"g:a": "qux",
+		"g:b": "yolo"
+	}
+}
+```
+
+Output in the terminal (without colors)
+
+```
+10 scripts
+├─┬ a — npm run b && npm run c
+│ ├─┬ b — foo
+│ │ └── preb — prefoo
+│ └─┬ c — npm run d
+│   └── d — bar
+├── preb — prefoo
+├─┬ b — foo
+│ └── preb — prefoo
+├─┬ c — npm run d
+│ └── d — bar
+├── d — bar
+├─┬ e — npm-run-all b d
+│ ├─┬ b — foo
+│ │ └── preb — prefoo
+│ └── d — bar
+├─┬ f — npm-run-all --serial b d
+│ ├─┬ b — foo
+│ │ └── preb — prefoo
+│ └── d — bar
+├─┬ g — npm-run-all --serial g:*
+│ ├── g:a — qux
+│ └── g:b — yolo
+├── g:a — qux
+└── g:b — yolo
+```
 
 ## License
 
