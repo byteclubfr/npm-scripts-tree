@@ -30,6 +30,15 @@ const unique = array => [...new Set(array)]
 
 const flatten = arrays => [].concat.apply([], arrays)
 
+const getMatches = (re, str) => {
+  const matches = []
+  let m
+  while ((m = re.exec(str)) !== null) {
+    matches.push({match: m[1], index: m[2]})
+  }
+  return matches
+}
+
 
 function archify (scripts, alpha) {
   let names = Object.keys(scripts)
@@ -86,26 +95,15 @@ function expandWildcard (nodesNames, scripts) {
 // handled natively
 function getRunScripts (cmd) {
   const re = new RegExp("(?:npm run" + RE_NAME + ")+", "gi")
-  const cmds = []
-  let m
-  // for each npm run group
-  while ((m = re.exec(cmd)) !== null) {
-    cmds.push(m[1])
-  }
-
-  return unique(cmds)
+  return unique(getMatches(re, cmd).map(m => m.match))
 }
 
 // handled by npm-run-all module
 function getRunAllScripts (cmd) {
   const re = RegExp("(?:npm-run-all" + RE_FLAGS + RE_NAMES + ")+", "gi")
-  const cmds = []
-  let m
-  // for each npm-run-all group
-  while ((m = re.exec(cmd)) !== null) {
+  const cmds = getMatches(re, cmd).map(m =>
     // clean spaces
-    cmds.push(m[1].trim().split(" ").filter(x => x))
-  }
+    m.match.trim().split(" ").filter(x => x))
 
   return unique(flatten(cmds))
 }
