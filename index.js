@@ -1,10 +1,10 @@
-"use strict";
+"use strict"
 
-var chalk = require("chalk");
+const chalk = require("chalk")
 // convention used : label and nodes
-var archy = require("archy");
+const archy = require("archy")
 
-var BUILTINS = [
+const BUILTINS = [
   "publish",
   "install",
   "uninstall",
@@ -13,25 +13,25 @@ var BUILTINS = [
   "start",
   "restart",
   "version"
-];
+]
 
 // -s, --serial…
-var RE_FLAGS = '(?:\\s+\-+\\w+)*';
+const RE_FLAGS = "(?:\\s+\-+\\w+)*"
 // build, watch, build_client, build-client, build:*
-var RE_NAME = '\\s+([a-z0-9_\\-]+)';
-var RE_NAMES = '((?:\\s+[a-z0-9_:\\-\\*]+)+)';
+const RE_NAME = "\\s+([a-z0-9_\\-]+)"
+const RE_NAMES = "((?:\\s+[a-z0-9_:\\-\\*]+)+)"
 
 // utils
 
-var unique = array => [...new Set(array)];
+const unique = array => [...new Set(array)]
 
-var flatten = arrays => [].concat.apply([], arrays)
+const flatten = arrays => [].concat.apply([], arrays)
 
 
 function archify (scripts, alpha) {
-  var names = Object.keys(scripts);
+  let names = Object.keys(scripts)
   if (alpha) {
-    names = names.sort();
+    names = names.sort()
   }
   return {
     label: `${names.length} scripts`,
@@ -40,92 +40,92 @@ function archify (scripts, alpha) {
 }
 
 function getLabel (script) {
-  var name = script.isPre || script.isPost
+  const name = script.isPre || script.isPost
     ? chalk.cyan(script.name)
     : chalk.bold(script.name)
 
-  return name + chalk.dim(` — ${script.cmd}`);
+  return name + chalk.dim(` — ${script.cmd}`)
 }
 
 function isPreScript (name, scripts) {
-  return isLifeCycleScript("pre", name, scripts);
+  return isLifeCycleScript("pre", name, scripts)
 }
 
 function isPostScript (name, scripts) {
-  return isLifeCycleScript("post", name, scripts);
+  return isLifeCycleScript("post", name, scripts)
 }
 
 function isLifeCycleScript (prefix, name, scripts) {
-  var re = new RegExp("^" + prefix);
-  var root = name.slice(prefix.length);
-  return Boolean(name.match(re) && (scripts[root] || ~BUILTINS.indexOf(root)));
+  const re = new RegExp("^" + prefix)
+  const root = name.slice(prefix.length)
+  return Boolean(name.match(re) && (scripts[root] || ~BUILTINS.indexOf(root)))
 }
 
 function getPreScript (name, scripts) {
-  return scripts["pre" + name];
+  return scripts["pre" + name]
 }
 
 function getPostScript (name, scripts) {
-  return scripts["post" + name];
+  return scripts["post" + name]
 }
 
 function getNodesNames (name, scripts) {
-  var cmd = scripts[name];
+  const cmd = scripts[name]
 
-  var nodesNames = [].concat(
+  const nodesNames = [].concat(
     getRunScripts(cmd),
     getRunAllScripts(cmd)
-  ).filter(x => x); // not null
+  ).filter(x => x) // not null
 
-  return getExistingNodeNames(unique(nodesNames), scripts);
+  return getExistingNodeNames(unique(nodesNames), scripts)
 }
 
 function getExistingNodeNames (nodesNames, scripts) {
-  return expandWildcard(nodesNames, scripts).filter(n => scripts[n]);
+  return expandWildcard(nodesNames, scripts).filter(n => scripts[n])
 }
 
 function expandWildcard (nodesNames, scripts) {
   return flatten(nodesNames.map(n => {
-    var sp = n.split(':');
-    var star = sp.pop();
-    if (star === '*' && sp.length === 1) {
-      let name = sp[0];
-      return Object.keys(scripts).filter(k =>  k.startsWith(`${name}:`));
+    const sp = n.split(":")
+    const star = sp.pop()
+    if (star === "*" && sp.length === 1) {
+      const name = sp[0]
+      return Object.keys(scripts).filter(k =>  k.startsWith(`${name}:`))
     }
-    return n;
-  }));
+    return n
+  }))
 }
 
 // handled natively
 function getRunScripts (cmd) {
-  var re = new RegExp('(?:npm run' + RE_NAME + ')+', 'gi');
-  var cmds = [];
-  var m;
+  const re = new RegExp("(?:npm run" + RE_NAME + ")+", "gi")
+  const cmds = []
+  let m
   // for each npm run group
   while ((m = re.exec(cmd)) !== null) {
-    cmds.push(m[1]);
+    cmds.push(m[1])
   }
 
-  return unique(cmds);
+  return unique(cmds)
 }
 
 // handled by npm-run-all module
 function getRunAllScripts (cmd) {
-  var re = RegExp('(?:npm-run-all' + RE_FLAGS + RE_NAMES + ')+', 'gi');
-  var cmds = [];
-  var m;
+  const re = RegExp("(?:npm-run-all" + RE_FLAGS + RE_NAMES + ")+", "gi")
+  const cmds = []
+  let m
   // for each npm-run-all group
   while ((m = re.exec(cmd)) !== null) {
     // clean spaces
-    cmds.push(m[1].trim().split(' ').filter(x => x));
+    cmds.push(m[1].trim().split(" ").filter(x => x))
   }
 
-  return unique(flatten(cmds));
+  return unique(flatten(cmds))
 }
 
 function getDetailedScripts (scripts) {
   return Object.keys(scripts).reduce((all, name) => {
-    var s = {
+    const s = {
       name: name,
       cmd: scripts[name],
       isPre: isPreScript(name, scripts),
@@ -133,38 +133,38 @@ function getDetailedScripts (scripts) {
       pre: getPreScript(name, scripts),
       post: getPostScript(name, scripts),
       nodesNames: getNodesNames(name, scripts)
-    };
+    }
 
-    s.label = getLabel(s);
+    s.label = getLabel(s)
 
-    all[name] = s;
-    return all;
-  }, {});
+    all[name] = s
+    return all
+  }, {})
 }
 
 // sub scripts
 function attachNodes (scripts) {
   return Object.keys(scripts).reduce((all, name) => {
-    var s = scripts[name];
-    s.nodes = s.nodesNames.map(n => scripts[n]);
+    const s = scripts[name]
+    s.nodes = s.nodesNames.map(n => scripts[n])
 
-    if (s.pre) s.nodes.unshift(scripts["pre" + name]);
-    if (s.post) s.nodes.push(scripts["post" + name]);
+    if (s.pre) s.nodes.unshift(scripts["pre" + name])
+    if (s.post) s.nodes.push(scripts["post" + name])
 
-    all[name] = s;
-    return all;
-  }, {});
+    all[name] = s
+    return all
+  }, {})
 }
 
 function main (scripts, options) {
-  if (!scripts) throw new Error("No package.json or no scripts key in this dir");
+  if (!scripts) throw new Error("No package.json or no scripts key in this dir")
 
-  var detailedScripts = getDetailedScripts(scripts);
-  detailedScripts = attachNodes(detailedScripts);
+  let detailedScripts = getDetailedScripts(scripts)
+  detailedScripts = attachNodes(detailedScripts)
 
   // sort?
-  var alpha = options.a || options.alpha;
-  return archy(archify(detailedScripts, alpha));
+  const alpha = options.a || options.alpha
+  return archy(archify(detailedScripts, alpha))
 }
 
 module.exports = {
