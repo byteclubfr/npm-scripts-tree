@@ -21,6 +21,9 @@ const RE_FLAGS = "(?:\\s+\-+\\w+)*"
 const RE_NAME = "\\s+([a-z0-9_\\-]+)"
 const RE_NAMES = "((?:\\s+[a-z0-9_:\\-\\*]+)+)"
 
+const PRE = "pre"
+const POST = "post"
+
 // utils
 
 const unique = array => [...new Set(array)]
@@ -47,26 +50,10 @@ function getLabel (script) {
   return name + chalk.dim(` — ${script.cmd}`)
 }
 
-function isPreScript (name, scripts) {
-  return isLifeCycleScript("pre", name, scripts)
-}
-
-function isPostScript (name, scripts) {
-  return isLifeCycleScript("post", name, scripts)
-}
-
 function isLifeCycleScript (prefix, name, scripts) {
   const re = new RegExp("^" + prefix)
   const root = name.slice(prefix.length)
   return Boolean(name.match(re) && (scripts[root] || ~BUILTINS.indexOf(root)))
-}
-
-function getPreScript (name, scripts) {
-  return scripts["pre" + name]
-}
-
-function getPostScript (name, scripts) {
-  return scripts["post" + name]
 }
 
 function getNodesNames (name, scripts) {
@@ -128,13 +115,12 @@ function getDetailedScripts (scripts) {
     const s = {
       name: name,
       cmd: scripts[name],
-      isPre: isPreScript(name, scripts),
-      isPost: isPostScript(name, scripts),
-      pre: getPreScript(name, scripts),
-      post: getPostScript(name, scripts),
+      isPre: isLifeCycleScript(PRE, name, scripts),
+      isPost: isLifeCycleScript(POST, name, scripts),
+      pre: scripts[PRE + name],
+      post: scripts[POST + name],
       nodesNames: getNodesNames(name, scripts)
     }
-
     s.label = getLabel(s)
 
     all[name] = s
@@ -148,8 +134,8 @@ function attachNodes (scripts) {
     const s = scripts[name]
     s.nodes = s.nodesNames.map(n => scripts[n])
 
-    if (s.pre) s.nodes.unshift(scripts["pre" + name])
-    if (s.post) s.nodes.push(scripts["post" + name])
+    if (s.pre) s.nodes.unshift(scripts[PRE + name])
+    if (s.post) s.nodes.push(scripts[POST + name])
 
     all[name] = s
     return all
