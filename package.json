@@ -7,7 +7,8 @@
     "npm-scripts-tree": "bin/npm-scripts-tree"
   },
   "scripts": {
-    "test": "tap test/*.js"
+    "test": "tap test/*.js",
+    "coverage": "npm test -- --coverage"
   },
   "keywords": [
     "npm-scripts"
