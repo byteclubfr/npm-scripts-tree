@@ -1,5 +1,8 @@
-var tap = require("tap");
-var nst = require("../index");
+var tap = require("tap")
+var nst = require("../index")
+
+// main
+tap.throws(nst.main)
 
 // getRunScripts
 var runScripts = {
@@ -13,13 +16,13 @@ var runScripts = {
   'foo && npm run bar && npm run bar': ['bar'],
   'foo && npm run bar && npm run qux': ['bar', 'qux'],
   'foo && npm run bar && npm run   qux': ['bar', 'qux'],
-};
+}
 
 Object.keys(runScripts).forEach((cmd) => {
   tap.same(nst.getRunScripts(cmd), runScripts[cmd])
-});
+})
 
-// getRunScripts
+// getRunAllScripts
 var runAllScripts = {
   'foo': [],
   'foo && npm-run-all': [],
@@ -39,8 +42,13 @@ var runAllScripts = {
   'foo && npm-run-all -s bar qux && npm-run-all yolo': ['bar', 'qux', 'yolo'],
   'foo && npm-run-all -p bar qux': ['bar', 'qux'],
   'foo && npm-run-all --parallel bar qux': ['bar', 'qux'],
-};
+}
 
 Object.keys(runAllScripts).forEach((cmd) => {
   tap.same(nst.getRunAllScripts(cmd), runAllScripts[cmd])
-});
+})
+
+// isLifeCycleScript
+
+tap.notOk(nst.isLifeCycleScript('foo', 'bar', { bar: 'bar' }))
+tap.ok(nst.isLifeCycleScript('foo', 'foobar', { bar: 'bar' }))

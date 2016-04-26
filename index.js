@@ -156,5 +156,6 @@ module.exports = {
   // test
   getRunScripts,
   getRunAllScripts,
-  getNodesNames
+  getNodesNames,
+  isLifeCycleScript
 }
