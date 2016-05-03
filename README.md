@@ -10,9 +10,9 @@
 
 **npm-scripts-tree** offers an alternative view.
 
-### Nested tasks.
+### Nested scripts.
 
-It's pretty common to have *meta scripts* delegating to sub tasks.
+It's pretty common to have *meta scripts* delegating to sub-scripts.
 
 For instance:
 
@@ -42,11 +42,15 @@ By starting your scripts name by *pre* or *post* you declare your own life-cycle
 
 Run `npm-scripts-tree` in the directory containing the `package.json` you want to inspect.
 
+- Life-cycle scripts are displayed in cyan
+- Scripts that are not sub-scripts are displayed in bold
+
 **Tip**: you may want to create a shell alias like `alias nst='npm-scripts-tree'`.
 
 ### Options
 
 `-a`, `--alpha` List scripts alphabetically
+`-p`, `--prune` Remove life-cycle scripts and explicit sub-scripts (containing a `:`) from tree top level
 
 ## Example
 
@@ -69,7 +73,7 @@ Fake `package.json` located in the `test` directory.
 }
 ```
 
-Output in the terminal (without colors)
+Output in the terminal (without colors):
 
 ```
 10 scripts
@@ -97,6 +101,33 @@ Output in the terminal (without colors)
 │ └── g:b — yolo
 ├── g:a — qux
 └── g:b — yolo
+```
+
+After pruning:
+
+```
+7 scripts
+├─┬ a — npm run b && npm run c
+│ ├─┬ b — foo
+│ │ └── preb — prefoo
+│ └─┬ c — npm run d
+│   └── d — bar
+├─┬ b — foo
+│ └── preb — prefoo
+├─┬ c — npm run d
+│ └── d — bar
+├── d — bar
+├─┬ e — npm-run-all b d
+│ ├─┬ b — foo
+│ │ └── preb — prefoo
+│ └── d — bar
+├─┬ f — npm-run-all --serial b d
+│ ├─┬ b — foo
+│ │ └── preb — prefoo
+│ └── d — bar
+└─┬ g — npm-run-all --serial g:*
+  ├── g:a — qux
+  └── g:b — yolo
 ```
 
 ## License

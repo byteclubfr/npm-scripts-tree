@@ -54,9 +54,12 @@ function archify (scripts, alpha) {
 
 // add color formatting
 function getLabel (script) {
-  const name = script.isPre || script.isPost
-    ? chalk.cyan(script.name)
-    : chalk.bold(script.name)
+  let name = script.name
+  if (script.isPre || script.isPost) {
+    name = chalk.cyan(name)
+  } else if (!script.isSub) {
+    name = chalk.bold(name)
+  }
 
   return name + chalk.dim(` — ${script.cmd}`)
 }
@@ -64,7 +67,7 @@ function getLabel (script) {
 function isLifeCycleScript (prefix, name, scripts) {
   const re = new RegExp("^" + prefix)
   const root = name.slice(prefix.length)
-  return Boolean(name.match(re) && (scripts[root] || ~BUILTINS.indexOf(root)))
+  return Boolean(name.match(re) && (scripts[root] || BUILTINS.includes(root)))
 }
 
 function getSubNames (name, scripts) {
@@ -110,6 +113,11 @@ function getRunAllScripts (cmd) {
   return unique(flatten(cmds))
 }
 
+function gatherAllSubNames (scripts) {
+  return unique(flatten(Object.keys(scripts).map(n => scripts[n].subNames)))
+}
+
+// 1st pass
 function getDetailedScripts (scripts) {
   return Object.keys(scripts).reduce((all, name) => {
     all[name] = {
@@ -128,9 +136,16 @@ function getDetailedScripts (scripts) {
   }, {})
 }
 
+// 2nd pass
 function attachLabelAndNodes (scripts) {
+  const subNames = gatherAllSubNames(scripts)
+
   return Object.keys(scripts).reduce((all, name) => {
     const s = scripts[name]
+    // for pruning and colors
+    s.isSub = subNames.includes(name)
+    s.isExplicitSub = s.isSub && name.includes(":")
+    // for archy
     s.label = getLabel(s)
     s.nodes = s.subNames.map(n => scripts[n])
 
@@ -142,11 +157,11 @@ function attachLabelAndNodes (scripts) {
   }, {})
 }
 
-// only keep non lifeCycleScript from top level
-function pruneLifeCycleScripts (scripts) {
+// 3rd pass - TODO configurable pruning
+function prune (scripts) {
   return Object.keys(scripts).reduce((all, name) => {
     const s = scripts[name]
-    if (!s.isPre && !s.isPost) {
+    if (!s.isPre && !s.isPost && !s.isExplicitSub) {
       all[name] = s
     }
     return all
@@ -159,7 +174,7 @@ function main (scripts, options) {
   let detailedScripts = getDetailedScripts(scripts)
   detailedScripts = attachLabelAndNodes(detailedScripts)
   if (options.p || options.prune) {
-    detailedScripts = pruneLifeCycleScripts(detailedScripts)
+    detailedScripts = prune(detailedScripts)
   }
 
   // sort?
