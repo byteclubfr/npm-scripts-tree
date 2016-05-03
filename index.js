@@ -1,7 +1,8 @@
 "use strict"
 
 const chalk = require("chalk")
-// convention used : label and nodes
+// convention used in data tree: scripts, names and subs
+// convention used in ASCII tree: label and nodes
 const archy = require("archy")
 
 const BUILTINS = [
@@ -51,6 +52,7 @@ function archify (scripts, alpha) {
   }
 }
 
+// add color formatting
 function getLabel (script) {
   const name = script.isPre || script.isPost
     ? chalk.cyan(script.name)
@@ -65,23 +67,23 @@ function isLifeCycleScript (prefix, name, scripts) {
   return Boolean(name.match(re) && (scripts[root] || ~BUILTINS.indexOf(root)))
 }
 
-function getNodesNames (name, scripts) {
+function getSubNames (name, scripts) {
   const cmd = scripts[name]
 
-  const nodesNames = [].concat(
+  const subNames = [].concat(
     getRunScripts(cmd),
     getRunAllScripts(cmd)
   ).filter(x => x) // not null
 
-  return getExistingNodeNames(unique(nodesNames), scripts)
+  return getExistingSubNames(unique(subNames), scripts)
 }
 
-function getExistingNodeNames (nodesNames, scripts) {
-  return expandWildcard(nodesNames, scripts).filter(n => scripts[n])
+function getExistingSubNames (names, scripts) {
+  return expandWildcard(names, scripts).filter(n => scripts[n])
 }
 
-function expandWildcard (nodesNames, scripts) {
-  return flatten(nodesNames.map(n => {
+function expandWildcard (names, scripts) {
+  return flatten(names.map(n => {
     const sp = n.split(":")
     const star = sp.pop()
     if (star === "*" && sp.length === 1) {
@@ -110,27 +112,27 @@ function getRunAllScripts (cmd) {
 
 function getDetailedScripts (scripts) {
   return Object.keys(scripts).reduce((all, name) => {
-    const s = {
+    all[name] = {
       name: name,
       cmd: scripts[name],
+      // booleans
       isPre: isLifeCycleScript(PRE, name, scripts),
       isPost: isLifeCycleScript(POST, name, scripts),
+      // refs
       pre: scripts[PRE + name],
       post: scripts[POST + name],
-      nodesNames: getNodesNames(name, scripts)
+      // strings
+      subNames: getSubNames(name, scripts)
     }
-    s.label = getLabel(s)
-
-    all[name] = s
     return all
   }, {})
 }
 
-// sub scripts
-function attachNodes (scripts) {
+function attachLabelAndNodes (scripts) {
   return Object.keys(scripts).reduce((all, name) => {
     const s = scripts[name]
-    s.nodes = s.nodesNames.map(n => scripts[n])
+    s.label = getLabel(s)
+    s.nodes = s.subNames.map(n => scripts[n])
 
     if (s.pre) s.nodes.unshift(scripts[PRE + name])
     if (s.post) s.nodes.push(scripts[POST + name])
@@ -155,7 +157,7 @@ function main (scripts, options) {
   if (!scripts) throw new Error("No package.json or no scripts key in this dir")
 
   let detailedScripts = getDetailedScripts(scripts)
-  detailedScripts = attachNodes(detailedScripts)
+  detailedScripts = attachLabelAndNodes(detailedScripts)
   if (options.p || options.prune) {
     detailedScripts = pruneLifeCycleScripts(detailedScripts)
   }
@@ -170,6 +172,6 @@ module.exports = {
   // test
   getRunScripts,
   getRunAllScripts,
-  getNodesNames,
+  getSubNames,
   isLifeCycleScript
 }
