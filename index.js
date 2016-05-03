@@ -140,11 +140,25 @@ function attachNodes (scripts) {
   }, {})
 }
 
+// only keep non lifeCycleScript from top level
+function pruneLifeCycleScripts (scripts) {
+  return Object.keys(scripts).reduce((all, name) => {
+    const s = scripts[name]
+    if (!s.isPre && !s.isPost) {
+      all[name] = s
+    }
+    return all
+  }, {})
+}
+
 function main (scripts, options) {
   if (!scripts) throw new Error("No package.json or no scripts key in this dir")
 
   let detailedScripts = getDetailedScripts(scripts)
   detailedScripts = attachNodes(detailedScripts)
+  if (options.p || options.prune) {
+    detailedScripts = pruneLifeCycleScripts(detailedScripts)
+  }
 
   // sort?
   const alpha = options.a || options.alpha
