@@ -1,21 +1,21 @@
 #!/usr/bin/env node
 
-var path = require("path");
-var cli = require("../");
+var path = require("path")
+var cli = require("../")
 
-var argv = require("minimist")(process.argv.slice(2));
+var argv = require("minimist")(process.argv.slice(2))
 
-function getScripts () {
-  var pkg;
+function getScripts (file = "package.json") {
+  var pkg
 
   try {
-    pkg = require(path.resolve("package.json"));
-    return pkg.scripts;
+    pkg = require(path.resolve(file))
+    return pkg.scripts
   } catch (e) {
-    return null;
+    return null
   }
 }
 
-var scripts = getScripts();
+const scripts = getScripts(argv._[0])
 
-console.log(cli.main(scripts, argv));
+console.log(cli.main(scripts, argv))
