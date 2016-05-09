@@ -9,6 +9,11 @@
 		"f": "npm-run-all --serial b d",
 		"g": "npm-run-all --serial g:*",
 		"g:a": "qux",
-		"g:b": "yolo"
+		"g:b": "yolo",
+		"g:c:d": "deep",
+		"h": "npm-run-all -p h:**",
+		"h:a": "qux",
+		"h:b": "yolo",
+		"h:c:d": "deep"
 	}
 }

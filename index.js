@@ -4,6 +4,7 @@ const chalk = require("chalk")
 // convention used in data tree: scripts, names and subs
 // convention used in ASCII tree: label and nodes
 const archy = require("archy")
+const minimatch = require("minimatch")
 
 const BUILTINS = [
   "publish",
@@ -21,6 +22,11 @@ const RE_FLAGS = "(?:\\s+\-+\\w+)*"
 // build, watch, build_client, build-client, build:*
 const RE_NAME = "\\s+([a-z0-9_\\-]+)"
 const RE_NAMES = "((?:\\s+[a-z0-9_:\\-\\*]+)+)"
+
+// minimatch conversion
+const RE_COLON_OR_SLASH = /[:\/]/g
+const SWAP_MAP = { ":": "/", "/": ":" }
+const SEP = ":"
 
 const PRE = "pre"
 const POST = "post"
@@ -40,7 +46,10 @@ const getMatches = (re, str) => {
   return matches
 }
 
+// minimatch conversion
+const swapColonAndSlash = s => s.replace(RE_COLON_OR_SLASH, m => SWAP_MAP[m])
 
+// label and nodes
 function archify (scripts, alpha) {
   let names = Object.keys(scripts)
   if (alpha) {
@@ -64,6 +73,7 @@ function getLabel (script) {
   return name + chalk.dim(` — ${script.cmd}`)
 }
 
+// pre, post or builtins
 function isLifeCycleScript (prefix, name, scripts) {
   const re = new RegExp("^" + prefix)
   const root = name.slice(prefix.length)
@@ -82,19 +92,21 @@ function getSubNames (name, scripts) {
 }
 
 function getExistingSubNames (names, scripts) {
-  return expandWildcard(names, scripts).filter(n => scripts[n])
+  return expandWildcards(names, scripts).filter(n => scripts[n])
 }
 
-function expandWildcard (names, scripts) {
-  return flatten(names.map(n => {
-    const sp = n.split(":")
-    const star = sp.pop()
-    if (star === "*" && sp.length === 1) {
-      const name = sp[0]
-      return Object.keys(scripts).filter(k =>  k.startsWith(`${name}:`))
-    }
-    return n
-  }))
+// test:* → [test:lint, test:client]
+// test:** → [test:lint, test:client, test:client:fx]
+function expandWildcard (name, scripts) {
+  const n = swapColonAndSlash(name)
+  return Object.keys(scripts)
+    .map(swapColonAndSlash)
+    .filter(x => minimatch(x, n))
+    .map(swapColonAndSlash)
+}
+
+function expandWildcards (names, scripts) {
+  return flatten(names.map(x => expandWildcard(x, scripts)))
 }
 
 // handled natively
@@ -144,7 +156,8 @@ function attachLabelAndNodes (scripts) {
     const s = scripts[name]
     // for pruning and colors
     s.isSub = subNames.includes(name)
-    s.isExplicitSub = s.isSub && name.includes(":")
+    s.isExplicitSub = s.isSub && name.includes(SEP)
+    s.explicitSubLevel = name.split(SEP).length - 1
     // for archy
     s.label = getLabel(s)
     s.nodes = s.subNames.map(n => scripts[n])
@@ -188,5 +201,6 @@ module.exports = {
   getRunScripts,
   getRunAllScripts,
   getSubNames,
-  isLifeCycleScript
+  isLifeCycleScript,
+  expandWildcard
 }

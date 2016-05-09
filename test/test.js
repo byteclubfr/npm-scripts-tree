@@ -31,6 +31,7 @@ var runAllScripts = {
   'foo && npm-run-all bar-toto': ['bar-toto'],
   'foo && npm-run-all bar:toto': ['bar:toto'],
   'foo && npm-run-all bar:*': ['bar:*'],
+  'foo && npm-run-all bar:*:*': ['bar:*:*'],
   'foo && npm-run-all   bar': ['bar'],
   'foo && npm-run-all bar bar': ['bar'],
   'foo && npm-run-all bar qux': ['bar', 'qux'],
@@ -49,6 +50,28 @@ Object.keys(runAllScripts).forEach((cmd) => {
 })
 
 // isLifeCycleScript
-
 tap.notOk(nst.isLifeCycleScript('foo', 'bar', { bar: 'bar' }))
 tap.ok(nst.isLifeCycleScript('foo', 'foobar', { bar: 'bar' }))
+
+// expandWildcard
+tap.same(
+  nst.expandWildcard('foo:*', {
+    'foo': 'bar',
+    'foo:bar': 'qux',
+    'foo:yolo': 'toto',
+    'foo:bar:yolo': 'toto',
+    'fooqux': 'qux',
+  }),
+  ['foo:bar', 'foo:yolo']
+)
+// Globstar
+tap.same(
+  nst.expandWildcard('foo:**', {
+    'foo': 'bar',
+    'foo:bar': 'qux',
+    'foo:yolo': 'toto',
+    'foo:bar:yolo': 'toto',
+    'fooqux': 'qux',
+  }),
+  ['foo:bar', 'foo:yolo', 'foo:bar:yolo']
+)
