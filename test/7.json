@@ -1,0 +1,8 @@
+{
+	"scripts": {
+		"test": "npm-run-all -p test:*",
+		"test:lint": "npm-run-all -p test:lint:*",
+		"test:lint:eslint": "esw src-js",
+		"start:lint:eslint": "npm run test:lint:eslint -- -w"
+	}
+}

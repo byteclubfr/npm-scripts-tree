@@ -16,6 +16,8 @@ var runScripts = {
   'foo && npm run bar && npm run bar': ['bar'],
   'foo && npm run bar && npm run qux': ['bar', 'qux'],
   'foo && npm run bar && npm run   qux': ['bar', 'qux'],
+  'foo && npm run bar:qux': ['bar:qux'],
+  'foo && npm run bar:qux:toto': ['bar:qux:toto'],
 }
 
 Object.keys(runScripts).forEach((cmd) => {

@@ -20,7 +20,7 @@ const BUILTINS = [
 // -s, --serial…
 const RE_FLAGS = "(?:\\s+\-+\\w+)*"
 // build, watch, build_client, build-client, build:*
-const RE_NAME = "\\s+([a-z0-9_\\-]+)"
+const RE_NAME = "\\s+([a-z0-9_:\\-]+)"
 const RE_NAMES = "((?:\\s+[a-z0-9_:\\-\\*]+)+)"
 
 // minimatch conversion
