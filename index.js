@@ -168,7 +168,7 @@ function prune (scripts) {
   }, {})
 }
 
-function main (scripts, options) {
+function main (scripts, options = {}) {
   if (!scripts) throw new Error("No package.json or no scripts key in this dir")
 
   let detailedScripts = getDetailedScripts(scripts)
