@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
-var path = require("path")
-var cli = require("../")
+const path = require("path")
+const cli = require("../")
 
-var argv = require("minimist")(process.argv.slice(2))
+const argv = require("minimist")(process.argv.slice(2))
 
 function getScripts (file = "package.json") {
-  var pkg
+  let pkg
 
   try {
     pkg = require(path.resolve(file))
